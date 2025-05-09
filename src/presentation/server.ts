@@ -21,12 +21,10 @@ export class Server {
     this.port = port;
     this.publicPath = public_path;
     this.routes = routes;
+    this.configure();
   }
 
-  
-  
-  async start() {
-    
+  private configure() {
 
     //* Middlewares
     this.app.use( express.json() ); // raw
@@ -39,11 +37,14 @@ export class Server {
     this.app.use( this.routes );
 
     //* SPA /^\/(?!api).*/  <== Únicamente si no empieza con la palabra api
-    this.app.get('*', (req, res) => {
+    this.app.get(/^\/(?!api).*/, (req, res) => {
       const indexPath = path.join( __dirname + `../../../${ this.publicPath }/index.html` );
       res.sendFile(indexPath);
     });
-    
+
+  }
+
+  async start() {
 
     this.serverListener = this.app.listen(this.port, () => {
       console.log(`Server running on port ${ this.port }`);
