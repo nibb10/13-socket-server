@@ -1,3 +1,4 @@
+import { stat } from "fs";
 import { UuidAdapter } from "../../config/uuid.adapter";
 import { Ticket } from "../../domain/interfaces/ticket";
 
@@ -39,7 +40,37 @@ export class TicketService {
 
     public drawTicket(desk: string) {
 
+        const ticket = this.tickets.find(t => !t.handleAtDesk);
+        if(!ticket) {
+            return { status: 'error', message: 'No hay tickets pendientes' };
+        };
+
+        ticket.handleAtDesk = desk;
+        ticket.handleAt = new Date();
+
+        //TODO: WS
+        
+        return { status: 'ok', ticket };
     }
+
+    public onFinishedTicket(id: string) {
+        
+        const ticket = this.tickets.find(t => t.id === id);
+        if(!ticket) {
+            return { status: 'error', message: 'Ticket no encontrado' };
+        };
+
+        this.tickets.map(ticket => {
+            if(ticket.id === id) {
+                ticket.done = true;
+            }
+            return ticket;
+        });
+
+        return { status: 'ok'}
+    }
+
+
 
 
 }
